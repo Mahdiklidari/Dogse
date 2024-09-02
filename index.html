@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صرافی توکن داگز</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .container {
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+        .price {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .price.up {
+            color: green;
+        }
+        .price.down {
+            color: red;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>صرافی توکن داگز</h1>
+        <div id="price" class="price">0.00</div>
+        <input type="number" id="tokenAmount" placeholder="تعداد توکن">
+        <button onclick="calculate()">محاسبه</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function fetchPrice() {
+            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=dogs&vs_currencies=usd');
+            const data = await response.json();
+            return data.dogs.usd;
+        }
+
+        let currentPrice = 0;
+        let lastPrice = 0;
+
+        async function updatePrice() {
+            lastPrice = currentPrice;
+            currentPrice = await fetchPrice();
+            const priceElement = document.getElementById('price');
+            priceElement.textContent = currentPrice.toFixed(4);
+            if (currentPrice > lastPrice) {
+                priceElement.classList.add('up');
+                priceElement.classList.remove('down');
+            } else {
+                priceElement.classList.add('down');
+                priceElement.classList.remove('up');
+            }
+        }
+
+        function calculate() {
+            const tokenAmount = document.getElementById('tokenAmount').value;
+            const dollarAmount = tokenAmount * currentPrice;
+            const tomanAmount = dollarAmount * 58000;
+            document.getElementById('result').innerHTML = `
+                مبلغ به دلار: ${dollarAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "/")}<br>
+                مبلغ به تومان: ${tomanAmount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, "/")}
+            `;
+        }
+
+        updatePrice();
+        setInterval(updatePrice, 60000); // به‌روزرسانی قیمت هر 60 ثانیه
+    </script>
+</body>
+</html>
