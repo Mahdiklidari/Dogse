@@ -64,9 +64,12 @@
 
     <script>
         async function fetchPrice() {
-            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=dogs&vs_currencies=usd');
-            const data = await response.json();
-            return data.dogs.usd;
+            const response = await fetch('https://arzdigital.com/coins/dogshouse/chart/');
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const priceElement = doc.querySelector('.price-value'); // کلاس یا آی‌دی مناسب را جایگزین کنید
+            return parseFloat(priceElement.textContent.replace(/,/g, ''));
         }
 
         let currentPrice = 0;
@@ -97,7 +100,7 @@
         }
 
         updatePrice();
-        setInterval(updatePrice, 60000); // به‌روزرسانی قیمت هر 60 ثانیه
+        setInterval(updatePrice, 1000); // به‌روزرسانی قیمت هر 60 ثانیه
     </script>
 </body>
 </html>
